@@ -1,0 +1,25 @@
+{
+  "name": "Enterprise Data Engineering Palette",
+  "dataColors": [
+    "#0078D4",
+    "#107C41",
+    "#5C2D91",
+    "#D83B01",
+    "#008272",
+    "#004E8C",
+    "#B146C2",
+    "#881798"
+  ],
+  "background": "#FFFFFF",
+  "foreground": "#24292F",
+  "tableAccent": "#0078D4",
+  "visualStyles": {
+    "*": {
+      "*": {
+        "*": {
+          "fontFamily": "Segoe UI"
+        }
+      }
+    }
+  }
+}

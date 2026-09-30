@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>PySpark Cookbook — Настольная книга дата-инженера в Microsoft Fabric</title>
+<style>
+  @page {
+    size: A4;
+    margin: 12mm 15mm 12mm 15mm;
+  }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: #24292f;
+    line-height: 1.45;
+    font-size: 9.5pt;
+    margin: 0;
+    padding: 0;
+  }
+  h1 {
+    color: #0078d4;
+    font-size: 19pt;
+    margin-top: 0;
+    margin-bottom: 4px;
+    border-bottom: 2px solid #0078d4;
+    padding-bottom: 6px;
+  }
+  .subtitle {
+    font-size: 10.5pt;
+    color: #57606a;
+    margin-top: 0;
+    margin-bottom: 14px;
+  }
+  h2 {
+    color: #1f2328;
+    font-size: 12pt;
+    margin-top: 12px;
+    margin-bottom: 6px;
+    border-bottom: 1px solid #d0d7de;
+    padding-bottom: 3px;
+    page-break-after: avoid;
+  }
+  p, ul {
+    margin-top: 0;
+    margin-bottom: 6px;
+  }
+  ul {
+    padding-left: 18px;
+  }
+  li {
+    margin-bottom: 3px;
+  }
+  code {
+    background-color: #f6f8fa;
+    border: 1px solid #d0d7de;
+    border-radius: 4px;
+    padding: 1px 4px;
+    font-family: "Consolas", "Courier New", monospace;
+    font-size: 8.5pt;
+    color: #cf222e;
+  }
+  pre {
+    background-color: #f6f8fa;
+    border: 1px solid #d0d7de;
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-family: "Consolas", "Courier New", monospace;
+    font-size: 8.5pt;
+    overflow-x: auto;
+    margin-top: 4px;
+    margin-bottom: 8px;
+    line-height: 1.35;
+    page-break-inside: avoid;
+  }
+  .keyword { color: #cf222e; font-weight: bold; }
+  .function { color: #8250df; }
+  .string { color: #0a3069; }
+  .comment { color: #6e7781; font-style: italic; }
+  
+  .box-blue {
+    background-color: #ddf4ff;
+    border-left: 4px solid #0969da;
+    padding: 6px 10px;
+    margin: 6px 0;
+    border-radius: 0 6px 6px 0;
+    page-break-inside: avoid;
+  }
+  .box-green {
+    background-color: #dafbe1;
+    border-left: 4px solid #1a7f37;
+    padding: 6px 10px;
+    margin: 6px 0;
+    border-radius: 0 6px 6px 0;
+    page-break-inside: avoid;
+  }
+  .page-break {
+    page-break-before: always;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 6px;
+    margin-bottom: 8px;
+    font-size: 8.5pt;
+    page-break-inside: avoid;
+  }
+  th, td {
+    border: 1px solid #d0d7de;
+    padding: 4px 8px;
+    text-align: left;
+    vertical-align: top;
+  }
+  th {
+    background-color: #f6f8fa;
+    font-weight: 600;
+  }
+</style>
+</head>
+<body>
+
+<h1>PySpark Cookbook для Microsoft Fabric</h1>
+<p class="subtitle"><strong>Золотые инженерные шаблоны (Cheat Sheet)</strong><br>
+Практическое руководство дата-инженера: готовые конструкции кода для блокнотов Fabric</p>
+
+<div class="box-green">
+  <strong>Принцип инженера:</strong> Не нужно учить наизусть сотни методов PySpark. В 95% реальных задач используются базовые типовые паттерны (чтение $\rightarrow$ очистка $\rightarrow$ объединение $\rightarrow$ агрегация $\rightarrow$ оптимизированная запись в Delta).
+</div>
+
+<h2>1. Базовые импорты (Всегда в первой ячейке блокнота)</h2>
+<pre>
+<span class="keyword">from</span> pyspark.sql.functions <span class="keyword">import</span> (
+    col, lit, when, coalesce, concat, concat_ws,
+    to_date, to_timestamp, year, month, dayofmonth, date_format,
+    round, sum, avg, count, min, max, row_number
+)
+<span class="keyword">from</span> pyspark.sql.window <span class="keyword">import</span> Window
+</pre>
+
+<h2>2. Чтение данных (Data Ingestion)</h2>
+<pre>
+<span class="comment"># 1. Чтение Delta-таблицы из текущего или соседнего Lakehouse</span>
+df = spark.read.table(<span class="string">"lh_bronze.dbo.publicholidays"</span>)
+
+<span class="comment"># 2. Чтение Parquet-файла из раздела Files/</span>
+df_parquet = spark.read.parquet(<span class="string">"Files/sample_datasets/public_holidays.parquet"</span>)
+
+<span class="comment"># 3. Чтение CSV-файла с автоопределением схемы и заголовками</span>
+df_csv = spark.read \
+    .option(<span class="string">"header"</span>, <span class="string">"true"</span>) \
+    .option(<span class="string">"inferSchema"</span>, <span class="string">"true"</span>) \
+    .csv(<span class="string">"Files/sample_datasets/city_safety_seattle.csv"</span>)
+</pre>
+
+<h2>3. Очистка, приведение типов и работа с NULL</h2>
+<pre>
+<span class="comment"># Фильтрация строк и переименование колонок</span>
+df_clean = df \
+    .filter(col(<span class="string">"date"</span>) >= <span class="string">"2020-01-01"</span>) \
+    .filter(col(<span class="string">"holidayName"</span>).isNotNull()) \
+    .withColumnRenamed(<span class="string">"countryRegionCode"</span>, <span class="string">"CountryCode"</span>)
+
+<span class="comment"># Преобразование строки в строгую Дату и извлечение атрибутов времени</span>
+df_dates = df_clean \
+    .withColumn(<span class="string">"HolidayDate"</span>, to_date(col(<span class="string">"date"</span>))) \
+    .withColumn(<span class="string">"Year"</span>, year(col(<span class="string">"HolidayDate"</span>))) \
+    .withColumn(<span class="string">"DayName"</span>, date_format(col(<span class="string">"HolidayDate"</span>), <span class="string">"EEEE"</span>))
+
+<span class="comment"># Замена NULL (coalesce) и условная логика (when / otherwise)</span>
+df_final = df_dates \
+    .withColumn(<span class="string">"IsPaid"</span>, coalesce(col(<span class="string">"isPaidTimeOff"</span>), lit(<span class="keyword">False</span>))) \
+    .withColumn(<span class="string">"Priority"</span>, 
+        when(col(<span class="string">"DayName"</span>).isin(<span class="string">"Saturday"</span>, <span class="string">"Sunday"</span>), <span class="string">"Weekend"</span>)
+        .otherwise(<span class="string">"Workday"</span>)
+    )
+</pre>
+
+<div class="page-break"></div>
+
+<h2>4. Объединение таблиц (Joins)</h2>
+<pre>
+<span class="comment"># Внутреннее объединение (INNER JOIN) по общему ключу</span>
+df_joined = df_orders.join(df_customers, on=<span class="string">"CustomerID"</span>, how=<span class="string">"inner"</span>)
+
+<span class="comment"># Левое объединение (LEFT JOIN), если ключи называются по-разному в таблицах</span>
+df_enriched = df_sales.join(
+    df_products,
+    df_sales[<span class="string">"ProdKey"</span>] == df_products[<span class="string">"ProductID"</span>],
+    how=<span class="string">"left"</span>
+).drop(df_products[<span class="string">"ProductID"</span>])  <span class="comment"># удаляем дублирующийся столбец</span>
+</pre>
+
+<h2>5. Агрегации и группировки (Group By & Aggregations)</h2>
+<pre>
+<span class="comment"># Сводка: количество праздников по странам и годам</span>
+df_summary = df_final.groupBy(<span class="string">"CountryName"</span>, <span class="string">"Year"</span>) \
+    .agg(
+        count(<span class="string">"HolidayName"</span>).alias(<span class="string">"TotalHolidays"</span>),
+        sum(when(col(<span class="string">"IsPaid"</span>) == <span class="keyword">True</span>, 1).otherwise(0)).alias(<span class="string">"PaidHolidays"</span>)
+    ) \
+    .orderBy(col(<span class="string">"Year"</span>).desc(), col(<span class="string">"TotalHolidays"</span>).desc())
+</pre>
+
+<h2>6. Оконные функции (Window Functions)</h2>
+<pre>
+<span class="comment"># Ранжирование строк: поиск последнего события по каждому пользователю</span>
+window_spec = Window.partitionBy(<span class="string">"CountryName"</span>).orderBy(col(<span class="string">"HolidayDate"</span>).desc())
+
+df_ranked = df_final \
+    .withColumn(<span class="string">"RankNum"</span>, row_number().over(window_spec)) \
+    .filter(col(<span class="string">"RankNum"</span>) == 1)  <span class="comment"># оставляем только самый последний праздник по стране</span>
+</pre>
+
+<h2>7. Запись в Delta Lake (Silver & Gold)</h2>
+<pre>
+<span class="comment"># Перезапись всей таблицы (Overwrite) — для измерений и справочников</span>
+df_final.write \
+    .format(<span class="string">"delta"</span>) \
+    .mode(<span class="string">"overwrite"</span>) \
+    .saveAsTable(<span class="string">"lh_silver.dbo.dim_holidays"</span>)
+
+<span class="comment"># Добавление новых строк (Append) — для фактов и логов</span>
+df_new_records.write \
+    .format(<span class="string">"delta"</span>) \
+    .mode(<span class="string">"append"</span>) \
+    .saveAsTable(<span class="string">"lh_gold.dbo.fact_daily_events"</span>)
+</pre>
+
+<h2>8. Обслуживание Delta Lake & Time Travel (%%sql)</h2>
+<pre>
+<span class="comment">-- 1. Сжатие файлов и кластеризация для максимальной скорости Direct Lake / SQL</span>
+OPTIMIZE lh_silver.dbo.dim_holidays ZORDER BY (HolidayDate);
+
+<span class="comment">-- 2. Просмотр истории версий и коммитов</span>
+DESCRIBE HISTORY lh_silver.dbo.dim_holidays;
+
+<span class="comment">-- 3. Путешествие во времени: чтение состояния таблицы на версию 0</span>
+SELECT * FROM lh_silver.dbo.dim_holidays VERSION AS OF 0;
+
+<span class="comment">-- 4. Очистка старых версий файлов (по умолчанию старше 7 дней)</span>
+VACUUM lh_silver.dbo.dim_holidays;
+</pre>
+
+<div class="box-blue">
+  <strong>Совет для Fabric:</strong> Функция <code>V-Order</code> включена в Microsoft Fabric по умолчанию при каждой записи через <code>saveAsTable()</code>. Она автоматически упорядочивает данные так, чтобы дашборды Power BI в режиме Direct Lake открывались мгновенно.
+</div>
+
+</body>
+</html>

@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Data Engineering Knowledge Base & Repository — Alexander Fritzler</title>
+<style>
+  :root {
+    --primary: #0078D4;
+    --primary-dark: #004E8C;
+    --bg: #F8FAFC;
+    --card-bg: #FFFFFF;
+    --text-main: #0F172A;
+    --text-muted: #64748B;
+    --border: #E2E8F0;
+    --badge-bg: #EFF6FF;
+    --badge-text: #1D4ED8;
+    --accent-green: #107C41;
+  }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--bg);
+    color: var(--text-main);
+    margin: 0;
+    padding: 24px;
+    line-height: 1.5;
+  }
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  header {
+    background: linear-gradient(135deg, #0078D4, #004E8C);
+    color: white;
+    padding: 28px;
+    border-radius: 12px;
+    margin-bottom: 24px;
+    box-shadow: 0 4px 12px rgba(0, 120, 212, 0.15);
+  }
+  header h1 {
+    margin: 0 0 8px 0;
+    font-size: 24pt;
+    font-weight: 700;
+  }
+  header p {
+    margin: 0;
+    font-size: 11pt;
+    opacity: 0.9;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+    gap: 20px;
+    margin-bottom: 24px;
+  }
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+    display: flex;
+    flex-direction: column;
+  }
+  .card h2 {
+    margin-top: 0;
+    margin-bottom: 12px;
+    font-size: 14pt;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--primary-dark);
+    border-bottom: 2px solid var(--border);
+    padding-bottom: 8px;
+  }
+  .card-section {
+    margin-bottom: 16px;
+  }
+  .card-section h3 {
+    font-size: 10.5pt;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+    margin: 0 0 8px 0;
+  }
+  ul.file-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  ul.file-list li {
+    padding: 6px 0;
+    border-bottom: 1px dashed var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 9.5pt;
+  }
+  ul.file-list li:last-child {
+    border-bottom: none;
+  }
+  a {
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 500;
+  }
+  a:hover {
+    text-decoration: underline;
+  }
+  .badge {
+    background-color: var(--badge-bg);
+    color: var(--badge-text);
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 8pt;
+    font-weight: 600;
+  }
+  .btn-pdf {
+    display: inline-block;
+    background-color: #E02424;
+    color: white;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 8.5pt;
+    font-weight: 600;
+  }
+  .btn-pdf:hover {
+    background-color: #BC1C1C;
+    text-decoration: none;
+  }
+  .banner-guides {
+    background: #FFFFFF;
+    border: 2px solid #0078D4;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 24px;
+    box-shadow: 0 3px 8px rgba(0, 120, 212, 0.08);
+  }
+  .banner-guides h2 {
+    margin-top: 0;
+    color: #0078D4;
+    font-size: 14pt;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <header>
+    <h1>Data Engineering Knowledge Base</h1>
+    <p>Центральный портал шаблонов, сниппетов и официальной документации — Alexander Fritzler</p>
+  </header>
+
+  <!-- Блок готовых руководств -->
+  <div class="banner-guides">
+    <h2>📘 Настольные руководства и шпаргалки (PDF & HTML)</h2>
+    <div style="display: flex; gap: 16px; flex-wrap: wrap; margin-top: 12px;">
+      <div style="flex: 1; min-width: 280px; background: #F8FAFC; padding: 14px; border-radius: 8px; border: 1px solid var(--border);">
+        <strong>DP-700 Master-Wegweiser (Сквозной проект)</strong><br>
+        <span style="font-size: 9pt; color: var(--text-muted);">Пошаговый путеводитель от Bronze до Warehouse T-SQL</span><br><br>
+        <a class="btn-pdf" href="00_Guides_and_CheatSheets/DP700_Lab_Master_Wegweiser.pdf" target="_blank">📄 Открыть PDF</a>
+        <a style="margin-left: 10px; font-size: 9pt;" href="00_Guides_and_CheatSheets/DP700_Lab_Master_Wegweiser.html" target="_blank">🌐 Открыть HTML</a>
+      </div>
+      <div style="flex: 1; min-width: 280px; background: #F8FAFC; padding: 14px; border-radius: 8px; border: 1px solid var(--border);">
+        <strong>PySpark Cookbook для Fabric</strong><br>
+        <span style="font-size: 9pt; color: var(--text-muted);">Золотые шаблоны трансформации, оконные функции, Delta</span><br><br>
+        <a class="btn-pdf" href="00_Guides_and_CheatSheets/PySpark_Cookbook_Fabric_Engineer.pdf" target="_blank">📄 Открыть PDF</a>
+        <a style="margin-left: 10px; font-size: 9pt;" href="00_Guides_and_CheatSheets/PySpark_Cookbook_Fabric_Engineer.html" target="_blank">🌐 Открыть HTML</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid">
+
+    <!-- БЛОК 1: SQL Server -->
+    <div class="card">
+      <h2>🗄️ 01. Microsoft SQL Server</h2>
+      
+      <div class="card-section">
+        <h3>Локальные сниппеты и шаблоны</h3>
+        <ul class="file-list">
+          <li>
+            <a href="01_SQL-Server/01_DQL_Queries/moving_averages_and_cte.sql">moving_averages_and_cte.sql</a>
+            <span class="badge">DQL / CTE</span>
+          </li>
+          <li>
+            <a href="01_SQL-Server/02_DDL_DML_Scripts/create_tables_and_views_template.sql">create_tables_and_views.sql</a>
+            <span class="badge">DDL / Views</span>
+          </li>
+          <li>
+            <a href="01_SQL-Server/03_StoredProcedures/stored_procedure_template.sql">stored_procedure_template.sql</a>
+            <span class="badge">Procedures</span>
+          </li>
+          <li>
+            <a href="01_SQL-Server/04_Performance_Tuning/dmv_performance_queries.sql">dmv_performance_queries.sql</a>
+            <span class="badge">DMV Tuning</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="card-section">
+        <h3>Официальная документация</h3>
+        <ul class="file-list">
+          <li><a href="https://learn.microsoft.com/sql/t-sql/language-reference" target="_blank">Microsoft T-SQL Reference ↗</a></li>
+          <li><a href="https://github.com/BrentOzarULTD/SQL-Server-First-Responder-Kit" target="_blank">Brent Ozar First Responder Kit ↗</a></li>
+          <li><a href="https://github.com/Microsoft/sql-server-samples/releases/tag/adventureworks" target="_blank">AdventureWorks Sample DB ↗</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- БЛОК 2: Power BI -->
+    <div class="card">
+      <h2>📊 02. Power BI & DAX / M</h2>
+      
+      <div class="card-section">
+        <h3>Локальные сниппеты и шаблоны</h3>
+        <ul class="file-list">
+          <li>
+            <a href="02_Power-BI/01_PowerQuery_M/clean_and_transform_template.pq">clean_and_transform_calendar.pq</a>
+            <span class="badge">Power Query M</span>
+          </li>
+          <li>
+            <a href="02_Power-BI/02_DAX_Measures/time_intelligence_dax_patterns.dax">time_intelligence_dax_patterns.dax</a>
+            <span class="badge">DAX Measures</span>
+          </li>
+          <li>
+            <a href="02_Power-BI/03_DataModels/star_schema_best_practices.md">star_schema_best_practices.md</a>
+            <span class="badge">Data Modeling</span>
+          </li>
+          <li>
+            <a href="02_Power-BI/04_Templates/standard_theme_palette.json">standard_theme_palette.json</a>
+            <span class="badge">Theme JSON</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="card-section">
+        <h3>Официальная документация</h3>
+        <ul class="file-list">
+          <li><a href="https://dax.guide/" target="_blank">DAX Guide (SQLBI) ↗</a></li>
+          <li><a href="https://www.daxpatterns.com/" target="_blank">DAX Patterns (SQLBI) ↗</a></li>
+          <li><a href="https://learn.microsoft.com/powerquery-m/" target="_blank">Power Query M Language Reference ↗</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- БЛОК 3: Microsoft Fabric -->
+    <div class="card">
+      <h2>⚡ 03. Microsoft Fabric</h2>
+      
+      <div class="card-section">
+        <h3>Локальные сниппеты и шаблоны</h3>
+        <ul class="file-list">
+          <li>
+            <a href="03_Fabric-DataEngineering/01_Ingestion_DataFactory/copy_activity_incremental_pattern.md">incremental_watermark_pattern.md</a>
+            <span class="badge">Pipelines</span>
+          </li>
+          <li>
+            <a href="03_Fabric-DataEngineering/02_Notebooks_PySpark/pyspark_medallion_transformation_template.py">pyspark_medallion_template.py</a>
+            <span class="badge">PySpark</span>
+          </li>
+          <li>
+            <a href="03_Fabric-DataEngineering/03_DataWarehouse_SQL/cross_db_ctas_and_refresh_proc.sql">cross_db_ctas_and_proc.sql</a>
+            <span class="badge">T-SQL / DW</span>
+          </li>
+          <li>
+            <a href="03_Fabric-DataEngineering/04_CI_CD_Git/git_workflow_guide.md">git_workflow_guide.md</a>
+            <span class="badge">CI/CD & Git</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="card-section">
+        <h3>Официальная документация & Сертификация</h3>
+        <ul class="file-list">
+          <li><a href="https://learn.microsoft.com/credentials/certifications/exams/dp-600/" target="_blank">Exam DP-600 (Fabric Analytics Engineer) ↗</a></li>
+          <li><a href="https://learn.microsoft.com/credentials/certifications/exams/dp-700/" target="_blank">Exam DP-700 (Fabric Data Engineer) ↗</a></li>
+          <li><a href="https://learn.microsoft.com/training/paths/get-started-fabric/" target="_blank">Microsoft Fabric Official Learn Paths ↗</a></li>
+          <li><a href="https://learn.microsoft.com/fabric/get-started/medallion-architecture" target="_blank">Fabric Medallion Architecture ↗</a></li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+</body>
+</html>

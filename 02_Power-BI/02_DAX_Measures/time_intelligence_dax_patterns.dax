@@ -1,0 +1,43 @@
+// ============================================================================
+// Назначение: Золотые паттерны DAX: Time Intelligence, YoY Growth, Накопительный итог
+// Контекст:   Power BI / DAX Measures
+// Автор:      Alexander Fritzler
+// ============================================================================
+
+// 1. Базовая мера продаж
+Total Sales = 
+SUM ( FactSales[SalesAmount] )
+
+// 2. Продажи с начала года (Year-To-Date)
+Sales YTD = 
+TOTALYTD ( [Total Sales], DimDate[Date] )
+
+// 3. Продажи за аналогичный период прошлого года (Prior Year)
+Sales PY = 
+CALCULATE (
+    [Total Sales],
+    SAMEPERIODLASTYEAR ( DimDate[Date] )
+)
+
+// 4. Прирост к прошлому году в валюте (YoY Growth $)
+Sales YoY Growth = 
+VAR _Current = [Total Sales]
+VAR _Prior = [Sales PY]
+RETURN
+    IF ( NOT ISBLANK ( _Prior ), _Current - _Prior )
+
+// 5. Процентный прирост к прошлому году (YoY Growth %)
+Sales YoY Growth % = 
+VAR _Growth = [Sales YoY Growth]
+VAR _Prior = [Sales PY]
+RETURN
+    DIVIDE ( _Growth, _Prior, BLANK () )
+
+// 6. Скользящее среднее за последние 3 месяца (Moving Average)
+Sales 3M Moving Avg = 
+CALCULATE (
+    AVERAGEX (
+        DATESINPERIOD ( DimDate[Date], MAX ( DimDate[Date] ), -3, MONTH ),
+        [Total Sales]
+    )
+)

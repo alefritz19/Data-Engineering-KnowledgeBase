@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Microsoft Fabric DP-700 — Master-Wegweiser für DP700_Lab</title>
+<style>
+  @page {
+    size: A4;
+    margin: 10mm 12mm 10mm 12mm;
+  }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: #24292f;
+    line-height: 1.4;
+    font-size: 9pt;
+    margin: 0;
+    padding: 0;
+  }
+  h1 {
+    color: #0078d4;
+    font-size: 18pt;
+    margin-top: 0;
+    margin-bottom: 3px;
+    border-bottom: 2px solid #0078d4;
+    padding-bottom: 5px;
+  }
+  .subtitle {
+    font-size: 10pt;
+    color: #57606a;
+    margin-top: 0;
+    margin-bottom: 12px;
+  }
+  h2 {
+    color: #1f2328;
+    font-size: 11.5pt;
+    margin-top: 10px;
+    margin-bottom: 4px;
+    border-bottom: 1px solid #d0d7de;
+    padding-bottom: 2px;
+    page-break-after: avoid;
+  }
+  p, ul, ol {
+    margin-top: 0;
+    margin-bottom: 5px;
+  }
+  ul, ol {
+    padding-left: 18px;
+  }
+  li {
+    margin-bottom: 2px;
+  }
+  code {
+    background-color: #f6f8fa;
+    border: 1px solid #d0d7de;
+    border-radius: 4px;
+    padding: 1px 3px;
+    font-family: "Consolas", "Courier New", monospace;
+    font-size: 8pt;
+    color: #cf222e;
+  }
+  pre {
+    background-color: #f6f8fa;
+    border: 1px solid #d0d7de;
+    border-radius: 5px;
+    padding: 6px 8px;
+    font-family: "Consolas", "Courier New", monospace;
+    font-size: 8pt;
+    overflow-x: auto;
+    margin-top: 3px;
+    margin-bottom: 6px;
+    line-height: 1.3;
+    page-break-inside: avoid;
+  }
+  .diagram-box {
+    background-color: #f8fafc;
+    border: 1px solid #0078d4;
+    border-radius: 6px;
+    padding: 8px;
+    font-family: "Consolas", "Courier New", monospace;
+    font-size: 7.5pt;
+    white-space: pre;
+    line-height: 1.25;
+    color: #0f172a;
+    margin-bottom: 8px;
+    page-break-inside: avoid;
+  }
+  .box-blue {
+    background-color: #ddf4ff;
+    border-left: 4px solid #0969da;
+    padding: 6px 10px;
+    margin: 5px 0;
+    border-radius: 0 5px 5px 0;
+    page-break-inside: avoid;
+  }
+  .box-green {
+    background-color: #dafbe1;
+    border-left: 4px solid #1a7f37;
+    padding: 6px 10px;
+    margin: 5px 0;
+    border-radius: 0 5px 5px 0;
+    page-break-inside: avoid;
+  }
+  .box-yellow {
+    background-color: #fff8c5;
+    border-left: 4px solid #d4a72c;
+    padding: 6px 10px;
+    margin: 5px 0;
+    border-radius: 0 5px 5px 0;
+    page-break-inside: avoid;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 4px;
+    margin-bottom: 6px;
+    font-size: 8pt;
+    page-break-inside: avoid;
+  }
+  th, td {
+    border: 1px solid #d0d7de;
+    padding: 3px 6px;
+    text-align: left;
+    vertical-align: top;
+  }
+  th {
+    background-color: #f6f8fa;
+    font-weight: 600;
+  }
+  .page-break {
+    page-break-before: always;
+  }
+  .step-num {
+    display: inline-block;
+    background-color: #0078d4;
+    color: white;
+    font-weight: bold;
+    border-radius: 50%;
+    width: 16px;
+    height: 16px;
+    text-align: center;
+    line-height: 16px;
+    font-size: 7.5pt;
+    margin-right: 4px;
+  }
+</style>
+</head>
+<body>
+
+<h1>Microsoft Fabric Data Engineering — Master-Wegweiser (DP700_Lab)</h1>
+<p class="subtitle"><strong>Komplettanleitung zum selbstständigen Nachbauen von A bis Z</strong><br>
+Medallion Architecture, PySpark, Delta Optimization, Zero-Copy Shortcuts, Data Pipelines & Fabric Warehouse T-SQL</p>
+
+<h2>TEIL 1: Das Gesamtsystem auf einen Blick (End-to-End Architektur)</h2>
+
+<div class="diagram-box">
+┌────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ ONELAKE — Zentraler SaaS-Datenspeicher (Delta-Parquet Format, ACID-Transaktionen, Time Travel)                         │
+└────────────────────────────────────────────────────────┬───────────────────────────────────────────────────────────────┘
+                                                         │
+  ┌──────────────────────────────────────────────────────┴───────────────────────────────────────────────────────┐
+  │ 1. BRONZE (Lakehouse: lh_bronze) 🥉                                                                          │
+  │    • Quelle: Beispieldaten / Ingestion (publicholidays)                                                      │
+  │    • Zustand: Unveränderte Rohdaten (alte Daten ab 1970, fehlerhafte Datumsformate, viele NULL-Werte)        │
+  │    • Physische Struktur: _delta_log/ + snappy.parquet Dateien                                                │
+  └──────────────────────────────────────────────────────┬───────────────────────────────────────────────────────┘
+                                                         │ PySpark Transformation (nb_bronze_to_silver)
+                                                         │ • Filter ab 2020: col("date") >= "2020-01-01"
+                                                         │ • Datumskonvertierung: to_date, year, date_format
+                                                         │ • Bereinigung: coalesce(col("isPaidTimeOff"), lit(False))
+                                                         ▼
+  ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+  │ 2. SILVER (Lakehouse: lh_silver) 🥈                                                                          │
+  │    • Tabelle: dim_holidays (Bereinigte, typisierte Delta-Tabelle)                                            │
+  │    • Wartung (%%sql): OPTIMIZE ... ZORDER BY (HolidayDate) für schnelles File-Skipping                       │
+  │    • Audit: DESCRIBE HISTORY (Versionskontrolle: Version 0, 1, 2)                                            │
+  └──────────────────────────────────────────────────────┬───────────────────────────────────────────────────────┘
+                                                         │ Zero-Copy Verknüpfung (Schema Shortcut: dbo_1)
+                                                         │ 0 MB Speicherverbrauch, 100% Echtzeit-Synchronisation
+                                                         ▼
+  ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+  │ 3. GOLD (Lakehouse: lh_gold) 🥇                                                                              │
+  │    • Schema Shortcut: dbo_1 -> dim_holidays (Verweist direkt auf Silver)                                     │
+  │    • Bereitstellung für Power BI Direct Lake Reporting ohne Datenkopie                                       │
+  └──────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+                                                         ▲
+                                                         │
+  ┌──────────────────────────────────────────────────────┴───────────────────────────────────────────────────────┐
+  │ 4. ORCHESTRIERUNG: Data Pipeline (pl_run_daily_etl) ⚙️                                                       │
+  │    • Headless / Batch Ausführung: Startet Notebook1 vollautomatisch im Hintergrund                           │
+  │    • Status: ERFOLGREICH (Erfolgreich ausgeführt in ca. 1m 16s)                                              │
+  └──────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+                                                         ▲
+                                                         │ Cross-Database T-SQL Abfragen über OneLake
+                                                         ▼
+  ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+  │ 5. FABRIC WAREHOUSE (wh_analytics) 🏛️                                                                        │
+  │    • Keine Files-Zone: Reine relationale T-SQL Engine (Lesen & Schreiben)                                    │
+  │    • CTAS: CREATE TABLE Country_Holiday_Summary AS SELECT ... FROM [lh_silver].[dbo].[dim_holidays]          │
+  │    • Stored Procedure: EXEC dbo.usp_Refresh_Holiday_Summary (Automatischer Aggregat-Refresh)                │
+  └──────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+</div>
+
+<h2>TEIL 2: Das Ingenieur-Lexikon (Die wichtigsten Begriffe auf Deutsch & Russisch)</h2>
+
+<table>
+  <tr>
+    <th style="width: 20%;">Begriff</th>
+    <th style="width: 40%;">Was bedeutet das in der Praxis?</th>
+    <th style="width: 40%;">Значение для дата-инженера (RU)</th>
+  </tr>
+  <tr>
+    <td><strong>OneLake</strong></td>
+    <td>Ein zentraler Data Lake für das gesamte Unternehmen („OneDrive für Daten“). Basiert auf ADLS Gen2.</td>
+    <td>Единый океан данных компании. Все службы (Spark, SQL, BI) читают один источник без дублирования.</td>
+  </tr>
+  <tr>
+    <td><strong>Lakehouse vs Warehouse</strong></td>
+    <td><strong>Lakehouse:</strong> Python/Spark + Files + Tables (SQL nur lesend).<br><strong>Warehouse:</strong> Reines T-SQL, Lese- und Schreibzugriff, Stored Procedures, ACID-Transaktionen.</td>
+    <td><strong>Lakehouse:</strong> для Python, Spark и сырых данных (Bronze/Silver).<br><strong>Warehouse:</strong> для реляционной аналитики, процедур T-SQL и витрин.</td>
+  </tr>
+  <tr>
+    <td><strong>Delta Lake (_delta_log)</strong></td>
+    <td>Open-Source-Speicherformat. Kombiniert Parquet mit einem Transaktionsprotokoll. Ermöglicht ACID, Versionierung und Time Travel.</td>
+    <td>Формат хранения: сжатый Parquet + журнал транзакций. Дает откат версий и надежность банковского уровня.</td>
+  </tr>
+  <tr>
+    <td><strong>Z-Order & Optimize</strong></td>
+    <td>Fasst kleine Dateien zusammen (Bin-Packing) und sortiert Daten physisch nach Spalten für <em>File Skipping</em>.</td>
+    <td>Оптимизация файлов: склеивает мелкие файлы и сортирует строки, ускоряя запросы в десятки раз.</td>
+  </tr>
+  <tr>
+    <td><strong>Schema Shortcut (Verknüpfung)</strong></td>
+    <td>Ein Zeiger auf ein Schema oder eine Tabelle in einem anderen Lakehouse. 0 Byte kopiert.</td>
+    <td>Символическая ссылка (Zero-Copy): таблица видна в Gold, но физически лежит в Silver.</td>
+  </tr>
+  <tr>
+    <td><strong>Headless Pipeline</strong></td>
+    <td>Automatischer Batch-Lauf im Hintergrund. Startet Notebooks ohne Benutzeroberfläche nach Zeitplan.</td>
+    <td>Пакетный запуск блокнота вслепую (фоном) по расписанию через оркестратор Data Factory.</td>
+  </tr>
+  <tr>
+    <td><strong>CTAS</strong></td>
+    <td><code>CREATE TABLE ... AS SELECT</code>: Erstellt und befüllt eine neue Tabelle in einem einzigen T-SQL Befehl.</td>
+    <td>Создание физической таблицы на основе SQL-запроса одной командой.</td>
+  </tr>
+  <tr>
+    <td><strong>Stored Procedure</strong></td>
+    <td>Gespeicherte T-SQL Prozedur im Warehouse. Kann mit <code>EXEC name;</code> jederzeit aufgerufen werden.</td>
+    <td>Хранимая процедура на сервере: запускается одной командой из скрипта или пайплайна.</td>
+  </tr>
+</table>
+
+<div class="page-break"></div>
+
+<h2>TEIL 3: Schritt-für-Schritt Anleitung zum selbstständigen Nachbauen</h2>
+
+<div class="box-blue">
+  <span class="step-num">1</span> <strong>Workspace anlegen (DP700_Lab)</strong><br>
+  1. Links auf <em>Arbeitsbereiche</em> $\rightarrow$ <em>+ Neuer Arbeitsbereich</em> klicken.<br>
+  2. Name: <code>DP700_Lab_Practice</code>.<br>
+  3. Unter <em>Erweitert</em> $\rightarrow$ Lizenzierungsmodus: <strong>Fabric-Testversion (Trial)</strong> auswählen $\rightarrow$ <em>Übernehmen</em>. (Diamant-Symbol 💎 erscheint).
+</div>
+
+<div class="box-blue">
+  <span class="step-num">2</span> <strong>Bronze-Schicht & Rohdaten anlegen</strong><br>
+  1. Im Workspace auf <em>+ Neues Element</em> $\rightarrow$ <strong>Lakehouse</strong> klicken $\rightarrow$ Name: <code>lh_bronze</code>.<br>
+  2. In der Mitte auf <strong>Mit Beispieldaten beginnen</strong> klicken $\rightarrow$ Beispieldatensatz (Public Holidays) laden.<br>
+  3. Ergebnis prüfen: In <code>lh_bronze</code> $\rightarrow$ <code>Tables</code> $\rightarrow$ <code>dbo</code> $\rightarrow$ <code>publicholidays</code> ist sichtbar.
+</div>
+
+<div class="box-blue">
+  <span class="step-num">3</span> <strong>Silver-Schicht & PySpark Transformation</strong><br>
+  1. Im Workspace auf <em>+ Neues Element</em> $\rightarrow$ <strong>Lakehouse</strong> $\rightarrow$ Name: <code>lh_silver</code>.<br>
+  2. Oben rechts auf <em>Daten analysieren mit</em> $\rightarrow$ <strong>Neues Notebook</strong> klicken $\rightarrow$ Name oben links in <code>nb_bronze_to_silver</code> ändern.<br>
+  3. Links im Explorer auf <em>+ Datenelemente hinzufügen</em> $\rightarrow$ <em>Vorhandenes Lakehouse</em> $\rightarrow$ <code>lh_bronze</code> hinzufügen.<br>
+  4. <strong>Zelle 1 (PySpark Transformation):</strong>
+<pre>
+from pyspark.sql.functions import col, to_date, year, date_format, coalesce, lit
+
+# 1. Aus Bronze einlesen
+df_raw = spark.read.table("lh_bronze.dbo.publicholidays")
+
+# 2. Bereinigen & Typisieren
+df_silver = df_raw \
+    .filter(col("date") >= "2020-01-01") \
+    .withColumn("HolidayDate", to_date(col("date"))) \
+    .withColumn("Year", year(col("HolidayDate"))) \
+    .withColumn("DayOfWeek", date_format(col("HolidayDate"), "EEEE")) \
+    .withColumn("IsPaid", coalesce(col("isPaidTimeOff"), lit(False))) \
+    .select(
+        col("countryRegionCode").alias("CountryCode"),
+        col("countryOrRegion").alias("CountryName"),
+        col("holidayName").alias("HolidayName"),
+        col("HolidayDate"),
+        col("Year"),
+        col("DayOfWeek"),
+        col("IsPaid")
+    )
+
+# 3. In Silver als Delta speichern
+df_silver.write.format("delta").mode("overwrite").saveAsTable("lh_silver.dbo.dim_holidays")
+print("Silver erfolgreich geschrieben!")
+</pre>
+  5. <strong>Zelle 2 (Delta Maintenance & Z-Order):</strong>
+<pre>
+%%sql
+OPTIMIZE lh_silver.dbo.dim_holidays ZORDER BY (HolidayDate);
+DESCRIBE HISTORY lh_silver.dbo.dim_holidays;
+</pre>
+  6. Ausführen (Play ▶). Ergebnis: <code>dim_holidays</code> existiert in <code>lh_silver</code> mit 3 Versionen im Log.
+</div>
+
+<div class="box-blue">
+  <span class="step-num">4</span> <strong>Gold-Schicht & Zero-Copy Schema Shortcut</strong><br>
+  1. Im Workspace auf <em>+ Neues Element</em> $\rightarrow$ <strong>Lakehouse</strong> $\rightarrow$ Name: <code>lh_gold</code>.<br>
+  2. Links im Explorer auf <code>Tables</code> die drei Punkte <strong>...</strong> anklicken $\rightarrow$ <strong>Neue Schemaverknüpfung</strong>.<br>
+  3. <em>Microsoft OneLake</em> $\rightarrow$ <code>lh_silver</code> $\rightarrow$ Haken bei der Checkbox <strong>dbo</strong> setzen $\rightarrow$ <em>Weiter</em> $\rightarrow$ <em>Erstellen</em>.<br>
+  4. Ergebnis: In <code>lh_gold</code> erscheint <code>dbo_1</code> mit der verlinkten Tabelle <code>dim_holidays</code> (Ketten-Symbol 🔗, 0 MB Speicher).
+</div>
+
+<div class="box-blue">
+  <span class="step-num">5</span> <strong>Orchestrierung per Data Pipeline (Automatisierung)</strong><br>
+  1. Im Workspace auf <em>+ Neues Element</em> $\rightarrow$ <strong>Datenpipeline</strong> $\rightarrow$ Name: <code>pl_run_daily_etl</code>.<br>
+  2. Im Menü oben auf <strong>Notebook</strong> klicken $\rightarrow$ Unten bei <em>Einstellungen</em> das Notizbuch <code>nb_bronze_to_silver</code> auswählen.<br>
+  3. Oben links auf <em>Speichern 💾</em> und dann auf <strong>Ausführen ▶</strong> klicken.<br>
+  4. Ergebnis: Pipeline schließt mit Status <strong>Erfolgreich</strong> (grüner Haken) in ca. 1 Minute ab.
+</div>
+
+<div class="box-blue">
+  <span class="step-num">6</span> <strong>Fabric Warehouse & T-SQL Cross-Database Queries</strong><br>
+  1. Im Workspace auf <em>+ Neues Element</em> $\rightarrow$ <strong>Warehouse</strong> $\rightarrow$ Name: <code>wh_analytics</code>.<br>
+  2. Links im Explorer auf <strong>+ Warehouses</strong> klicken $\rightarrow$ <code>lh_silver</code> ankreuzen (damit die Tabellen sichtbar werden).<br>
+  3. Oben auf <strong>Neue SQL-Abfrage</strong> klicken $\rightarrow$ CTAS-Tabelle erstellen:
+<pre>
+CREATE TABLE dbo.Country_Holiday_Summary AS
+SELECT 
+    CountryCode, CountryName,
+    COUNT(*) AS TotalHolidays,
+    SUM(CAST(IsPaid AS INT)) AS PaidHolidays,
+    MIN(HolidayDate) AS FirstDate,
+    MAX(HolidayDate) AS LastDate
+FROM [lh_silver].[dbo].[dim_holidays]
+GROUP BY CountryCode, CountryName;
+</pre>
+  4. Stored Procedure erstellen:
+<pre>
+CREATE OR ALTER PROCEDURE dbo.usp_Refresh_Holiday_Summary
+AS
+BEGIN
+    TRUNCATE TABLE dbo.Country_Holiday_Summary;
+    INSERT INTO dbo.Country_Holiday_Summary
+    SELECT 
+        CountryCode, CountryName,
+        COUNT(*) AS TotalHolidays,
+        SUM(CAST(IsPaid AS INT)) AS PaidHolidays,
+        MIN(HolidayDate) AS FirstDate,
+        MAX(HolidayDate) AS LastDate
+    FROM [lh_silver].[dbo].[dim_holidays]
+    GROUP BY CountryCode, CountryName;
+END;
+</pre>
+  5. Testausführung: <code>EXEC dbo.usp_Refresh_Holiday_Summary;</code> $\rightarrow$ 38 Zeilen aktualisiert in 2 Sekunden!
+</div>
+
+<div class="box-yellow">
+  <strong>Fazit für die Praxis:</strong> Mit diesen 6 Schritten beherrschst du den gesamten Datenlebenszyklus in Microsoft Fabric: von der Rohdatenaufnahme über die Spark-Transformation bis zur relationalen Bereitstellung im Data Warehouse!
+</div>
+
+</body>
+</html>
