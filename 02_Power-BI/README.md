@@ -1,20 +1,20 @@
 # 02. Power BI & DAX / Power Query (M) Repository
 
-Репозиторий аналитических решений: трансформация данных (M), расчет мер (DAX) и построение моделей типа «Звезда» (Star Schema).
+Praxislösungen für Business Intelligence: Datenbereinigung mit Power Query (M), semantische Datenmodellierung und performante DAX-Measures.
 
 ---
 
-## 📌 Быстрый доступ к официальной документации и справочникам
+## 📌 Offizielle Dokumentation & Referenzen
 
-* **Справочник по DAX:** [DAX Guide (SQLBI)](https://dax.guide/) — фундаментальный ресурс по всем функциям DAX с примерами, планами выполнения и разбором контекста фильтрации от Марко Руссо и Альберто Феррари.
-* **Справочник по языку M:** [Power Query M Formula Language](https://learn.microsoft.com/powerquery-m/) — синтаксис формул ETL, очистки строк, работы со списками и таблицами.
-* **Библиотека готовых паттернов DAX:** [DAX Patterns](https://www.daxpatterns.com/) — готовые выверенные шаблоны: Time Intelligence, накопительные итоги (Cumulative), ABC-классификация, сравнение бюджет/факт.
+* **DAX Referenz:** [DAX Guide (SQLBI)](https://dax.guide/) — Referenzhandbuch für DAX-Funktionen mit Erläuterung von Filter- und Zeilenkontexten von Marco Russo und Alberto Ferrari.
+* **M Formelsprache:** [Power Query M Formula Language](https://learn.microsoft.com/powerquery-m/) — Syntax für Datenaufbereitung und ETL-Funktionen.
+* **DAX Entwurfsmuster:** [DAX Patterns](https://www.daxpatterns.com/) — Geprüfte Berechnungen für Time Intelligence, kumulierte Summen und Abweichungsanalysen.
 
 ---
 
-## 📂 Структура папок
+## 📂 Verzeichnisstruktur
 
-* `01_PowerQuery_M/` — скрипты подключений к источникам, генераторы календаря, пользовательские функции трансформации M.
-* `02_DAX_Measures/` — библиотека формул DAX (KPI, YTD/QTD/MTD, YoY Growth, скользящие средние, Row-Level Security).
-* `03_DataModels/` — стандарты моделирования схем типа «Звезда» (Fact и Dimension таблицы), кардинальность (1:*, *:1) и направление фильтрации (Single vs Both).
-* `04_Templates/` — корпоративные шаблоны оформления (JSON themes) и структуры отчетов.
+* `01_PowerQuery_M/` — M-Skripte zur Datenanbindung, dynamische Kalendergeneratoren, Transformationsfunktionen.
+* `02_DAX_Measures/` — Formelbibliothek für DAX (KPIs, YTD/QTD/MTD, YoY-Wachstum, gleitende Durchschnitte, Row-Level Security).
+* `03_DataModels/` — Modellierungsstandards für das Sternschema (Fakten- und Dimensionstabellen), Kardinalitäten (1:n) und Filterrichtungen (Single vs. Both).
+* `04_Templates/` — Farbthemen (JSON Themes) und Reporting-Vorlagen.
