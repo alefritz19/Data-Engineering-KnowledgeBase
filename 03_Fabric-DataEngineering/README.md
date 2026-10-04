@@ -13,7 +13,21 @@ Lösungsarchitekturen und Code-Vorlagen für die einheitliche Analytics-Plattfor
 
 ---
 
-## 📂 Verzeichnisstruktur
+## 🌟 Flaggschiff-Projekt: End-to-End Supermarkt Medallion Showcase
+
+* 👉 **[`01_Medallion_Supermarkt_DP700/`](01_Medallion_Supermarkt_DP700/README.md)** — **Vollständiges End-to-End Projekt von On-Premises bis Power BI Direct Lake:**
+  * **Schritt 1:** Workspace `DP700_Supermarkt_Practice` (Fabric Trial)
+  * **Schritt 2:** Ingestion & Lakehouse `lh_bronze` (6 Roh-Tabellen via Gateway)
+  * **Schritt 3:** PySpark Transformation `nb_bronze_to_silver_supermarkt` & Star Schema in `lh_silver` (Delta Lake + Z-Order)
+  * **Schritt 4:** Zero-Copy OneLake Schema Shortcut in `lh_gold` (0 MB Speicherverbrauch!)
+  * **Schritt 5:** Orchestrierung per Data Factory Pipeline `pl_run_daily_supermarkt_etl`
+  * **Schritt 6:** Fabric Warehouse `wh_analytics` (CTAS Datamart & Stored Procedure `usp_Refresh_Kategorie_Summary`)
+  * **Schritt 7:** Direct Lake Semantikmodell `sm_supermarkt_sales` (DAX Measures: `Total_Umsatz`, `Total_Menge`)
+  * **Schritt 8:** Power BI Executive Dashboard `rpt_supermarkt_management_dashboard` (KPIs, Matrix, Säulendiagramm, Treemap, Wasserfall)
+
+---
+
+## 📂 Weitere Fachbereiche & Vorlagen
 
 * `01_Ingestion_DataFactory/` — Data Pipelines, Copy Activities (Full Load & inkrementelles Laden via Watermark), Dataflows Gen2.
 * `02_Notebooks_PySpark/` — PySpark Vorlagen für Bereinigung, Delta Lake Wartung (`OPTIMIZE ZORDER`) und Time Travel.

@@ -4,6 +4,13 @@ Zentrale Wissensdatenbank, Best Practices und produktionsreife Vorlagen für Mic
 
 ---
 
+## 🌟 End-to-End Showcase: Supermarkt Medallion & Power BI Direct Lake
+
+> **Vollständiges Referenzprojekt:** Vom lokalen Microsoft SQL Server über On-Premises Data Gateway, Medallion Architecture (Bronze $\rightarrow$ Silver $\rightarrow$ Gold), Fabric Warehouse CTAS & Stored Procedures bis hin zum **Power BI Direct Lake Semantic Model & Executive Dashboard**.  
+> 👉 **[Zum vollständigen Showcase Runbook (Schritte 1 bis 8)](03_Fabric-DataEngineering/01_Medallion_Supermarkt_DP700/README.md)**
+
+---
+
 ## 🏛️ Repository-Struktur
 
 ```
@@ -20,6 +27,7 @@ Data-Engineering-KnowledgeBase/
 │   ├── 03_DataModels/             # Sternschema (Star Schema Best Practices, 1:n Beziehungen)
 │   └── 04_Templates/              # Standardisierte Unternehmens-Farbpaletten (JSON)
 └── 03_Fabric-DataEngineering/     # Microsoft Fabric (DP-600 & DP-700)
+    ├── 01_Medallion_Supermarkt_DP700/ # ⭐ FLAGGSCHIFF: End-to-End Supermarkt Showcase & Power BI Direct Lake
     ├── 01_Ingestion_DataFactory/  # Data Pipelines, inkrementelles Laden (Watermark / Delta Load)
     ├── 02_Notebooks_PySpark/      # PySpark Notebooks (Bronze -> Silver -> Gold), Z-Order
     ├── 03_DataWarehouse_SQL/      # Fabric DW: T-SQL Cross-Database Queries, CTAS, Stored Procedures
