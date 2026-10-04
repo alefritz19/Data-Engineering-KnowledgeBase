@@ -1,33 +1,35 @@
--- ============================================================================
--- Назначение: Шаблон надежной хранимой процедуры с транзакцией и перехватом ошибок
--- Контекст:   T-SQL / Stored Procedure / ACID Transactions
--- Автор:      Alexander Fritzler
--- ============================================================================
+-- ==============================================================================
+-- Zweck:    Vorlage für robuste Stored Procedure mit Transaktion & Fehlerbehandlung
+-- Kontext:  T-SQL / Stored Procedure / ACID Transactions
+-- Autor:    Alexander Fritzler
+-- ==============================================================================
 
 CREATE OR ALTER PROCEDURE dbo.usp_UpsertCustomer
-    @CustomerCode NVARCHAR(50),
-    @FullName     NVARCHAR(150),
-    @Email        NVARCHAR(100) = NULL
+    @CustomerCode NVARCHAR(20),
+    @FirstName NVARCHAR(50),
+    @LastName NVARCHAR(50),
+    @Email NVARCHAR(100)
 AS
 BEGIN
     SET NOCOUNT ON;
-    SET XACT_ABORT ON; -- Автоматический откат при критических сбоях
+    SET XACT_ABORT ON; -- Automatischer Rollback bei kritischen Laufzeitfehlern
 
     BEGIN TRY
         BEGIN TRANSACTION;
 
-        -- Обновление существующей записи или вставка новой (Upsert)
-        IF EXISTS (SELECT 1 FROM dbo.DimCustomer WHERE CustomerCode = @CustomerCode)
+        -- Bestehenden Datensatz aktualisieren oder neuen einfügen (Upsert)
+        IF EXISTS (SELECT 1 FROM dbo.Dim_Customer WHERE CustomerCode = @CustomerCode)
         BEGIN
-            UPDATE dbo.DimCustomer
-            SET FullName = @FullName,
+            UPDATE dbo.Dim_Customer
+            SET FirstName = @FirstName,
+                LastName = @LastName,
                 Email = @Email
             WHERE CustomerCode = @CustomerCode;
         END
         ELSE
         BEGIN
-            INSERT INTO dbo.DimCustomer (CustomerCode, FullName, Email)
-            VALUES (@CustomerCode, @FullName, @Email);
+            INSERT INTO dbo.Dim_Customer (CustomerCode, FirstName, LastName, Email)
+            VALUES (@CustomerCode, @FirstName, @LastName, @Email);
         END
 
         COMMIT TRANSACTION;
@@ -36,7 +38,8 @@ BEGIN
         IF @@TRANCOUNT > 0
             ROLLBACK TRANSACTION;
 
-        -- Проброс ошибки вызывающему приложению / пайплайну
+        -- Fehler an aufrufende Anwendung / Pipeline weiterleiten
         THROW;
     END CATCH
 END;
+GO

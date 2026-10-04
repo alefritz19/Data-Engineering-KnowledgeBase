@@ -206,47 +206,47 @@ Medallion Architecture, PySpark, Delta Optimization, Zero-Copy Shortcuts, Data P
   <tr>
     <th style="width: 20%;">Begriff</th>
     <th style="width: 40%;">Was bedeutet das in der Praxis?</th>
-    <th style="width: 40%;">Значение для дата-инженера (RU)</th>
+    <th style="width: 40%;">Relevanz für Data Engineers & Architektur</th>
   </tr>
   <tr>
     <td><strong>OneLake</strong></td>
     <td>Ein zentraler Data Lake für das gesamte Unternehmen („OneDrive für Daten“). Basiert auf ADLS Gen2.</td>
-    <td>Единый океан данных компании. Все службы (Spark, SQL, BI) читают один источник без дублирования.</td>
+    <td>Zentraler Speicher: Alle Engines (Spark, SQL, BI) greifen ohne Datenkopien auf denselben Speicher zu.</td>
   </tr>
   <tr>
     <td><strong>Lakehouse vs Warehouse</strong></td>
     <td><strong>Lakehouse:</strong> Python/Spark + Files + Tables (SQL nur lesend).<br><strong>Warehouse:</strong> Reines T-SQL, Lese- und Schreibzugriff, Stored Procedures, ACID-Transaktionen.</td>
-    <td><strong>Lakehouse:</strong> для Python, Spark и сырых данных (Bronze/Silver).<br><strong>Warehouse:</strong> для реляционной аналитики, процедур T-SQL и витрин.</td>
+    <td>Klare Architektur-Trennung: Lakehouse für Spark & Transformation (Bronze/Silver); Warehouse für relationales Serving und Datamarts.</td>
   </tr>
   <tr>
     <td><strong>Delta Lake (_delta_log)</strong></td>
     <td>Open-Source-Speicherformat. Kombiniert Parquet mit einem Transaktionsprotokoll. Ermöglicht ACID, Versionierung und Time Travel.</td>
-    <td>Формат хранения: сжатый Parquet + журнал транзакций. Дает откат версий и надежность банковского уровня.</td>
+    <td>Enterprise-Speicher: Parquet + Transaktionslog. Garantiert ACID-Zuverlässigkeit, Time Travel und Versionierung.</td>
   </tr>
   <tr>
     <td><strong>Z-Order & Optimize</strong></td>
     <td>Fasst kleine Dateien zusammen (Bin-Packing) und sortiert Daten physisch nach Spalten für <em>File Skipping</em>.</td>
-    <td>Оптимизация файлов: склеивает мелкие файлы и сортирует строки, ускоряя запросы в десятки раз.</td>
+    <td>Datei-Optimierung: Beseitigt Small-File-Probleme und beschleunigt Lesezugriffe durch File Skipping um Faktoren.</td>
   </tr>
   <tr>
     <td><strong>Schema Shortcut (Verknüpfung)</strong></td>
     <td>Ein Zeiger auf ein Schema oder eine Tabelle in einem anderen Lakehouse. 0 Byte kopiert.</td>
-    <td>Символическая ссылка (Zero-Copy): таблица видна в Gold, но физически лежит в Silver.</td>
+    <td>Zero-Copy Architektur: Tabellen werden in Gold logisch verknüpft – spart Speicherkosten und verhindert Desynchronisation.</td>
   </tr>
   <tr>
     <td><strong>Headless Pipeline</strong></td>
     <td>Automatischer Batch-Lauf im Hintergrund. Startet Notebooks ohne Benutzeroberfläche nach Zeitplan.</td>
-    <td>Пакетный запуск блокнота вслепую (фоном) по расписанию через оркестратор Data Factory.</td>
+    <td>Batch-Orchestrierung: Zuverlässige, zeitgesteuerte ETL-Ausführung im Hintergrund via Data Factory.</td>
   </tr>
   <tr>
     <td><strong>CTAS</strong></td>
     <td><code>CREATE TABLE ... AS SELECT</code>: Erstellt und befüllt eine neue Tabelle in einem einzigen T-SQL Befehl.</td>
-    <td>Создание физической таблицы на основе SQL-запроса одной командой.</td>
+    <td>Hochperformante Materialisierung vorberechneter Aggregationstabellen für Endanwender.</td>
   </tr>
   <tr>
     <td><strong>Stored Procedure</strong></td>
     <td>Gespeicherte T-SQL Prozedur im Warehouse. Kann mit <code>EXEC name;</code> jederzeit aufgerufen werden.</td>
-    <td>Хранимая процедура на сервере: запускается одной командой из скрипта или пайплайна.</td>
+    <td>Serverseitige Kapselung von ETL-Aktualisierungslogiken mit ACID-Transaktionssicherheit.</td>
   </tr>
 </table>
 

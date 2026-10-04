@@ -1,43 +1,44 @@
-// ============================================================================
-// Назначение: Золотые паттерны DAX: Time Intelligence, YoY Growth, Накопительный итог
-// Контекст:   Power BI / DAX Measures
-// Автор:      Alexander Fritzler
-// ============================================================================
+// ==============================================================================
+// Zweck:    DAX Best Practice Patterns: Time Intelligence, YoY Growth, Kumulation
+// Kontext:  Power BI / DAX Measures
+// Autor:    Alexander Fritzler
+// ==============================================================================
 
-// 1. Базовая мера продаж
+// 1. Basis-Umsatzmaß
 Total Sales = 
-SUM ( FactSales[SalesAmount] )
+SUM ( fct_Sales[SalesAmount] )
 
-// 2. Продажи с начала года (Year-To-Date)
+// 2. Umsatz seit Jahresbeginn (Year-To-Date)
 Sales YTD = 
-TOTALYTD ( [Total Sales], DimDate[Date] )
-
-// 3. Продажи за аналогичный период прошлого года (Prior Year)
-Sales PY = 
-CALCULATE (
-    [Total Sales],
-    SAMEPERIODLASTYEAR ( DimDate[Date] )
+TOTALYTD ( 
+    [Total Sales], 
+    dim_Date[Date] 
 )
 
-// 4. Прирост к прошлому году в валюте (YoY Growth $)
-Sales YoY Growth = 
-VAR _Current = [Total Sales]
-VAR _Prior = [Sales PY]
-RETURN
-    IF ( NOT ISBLANK ( _Prior ), _Current - _Prior )
+// 3. Umsatz im Vergleichszeitraum des Vorjahres (Prior Year)
+Sales Prior Year = 
+CALCULATE ( 
+    [Total Sales], 
+    SAMEPERIODLASTYEAR ( dim_Date[Date] ) 
+)
 
-// 5. Процентный прирост к прошлому году (YoY Growth %)
+// 4. Vorjahreswachstum in Währung (YoY Growth €)
+Sales YoY Growth € = 
+[Total Sales] - [Sales Prior Year]
+
+// 5. Prozentuales Vorjahreswachstum (YoY Growth %)
 Sales YoY Growth % = 
-VAR _Growth = [Sales YoY Growth]
-VAR _Prior = [Sales PY]
-RETURN
-    DIVIDE ( _Growth, _Prior, BLANK () )
+DIVIDE ( 
+    [Sales YoY Growth €], 
+    [Sales Prior Year], 
+    BLANK() 
+)
 
-// 6. Скользящее среднее за последние 3 месяца (Moving Average)
+// 6. Gleitender 3-Monats-Durchschnitt (Moving Average)
 Sales 3M Moving Avg = 
 CALCULATE (
-    AVERAGEX (
-        DATESINPERIOD ( DimDate[Date], MAX ( DimDate[Date] ), -3, MONTH ),
+    AVERAGEX ( 
+        DATESINPERIOD ( dim_Date[Date], MAX ( dim_Date[Date] ), -3, MONTH ),
         [Total Sales]
     )
 )

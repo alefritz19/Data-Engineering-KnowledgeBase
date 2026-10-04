@@ -1,45 +1,37 @@
-# ============================================================================
-# Назначение: Шаблон блокнота PySpark: Переход Bronze -> Silver -> Gold в Fabric
-# Контекст:   Microsoft Fabric / PySpark / Delta Lake
-# Автор:      Alexander Fritzler
-# ============================================================================
+# ==============================================================================
+# Zweck:    PySpark Notebook Vorlage: Medallion Pipeline Bronze -> Silver -> Gold
+# Kontext:  Microsoft Fabric / PySpark / Delta Lake
+# Autor:    Alexander Fritzler
+# ==============================================================================
 
-from pyspark.sql.functions import col, to_date, year, month, date_format, coalesce, lit, when
-from pyspark.sql.window import Window
+from pyspark.sql.functions import col, to_date, trim, when, lit, current_timestamp
 
-# ----------------------------------------------------------------------------
-# 1. BRONZE -> SILVER: Очистка, типизация, дедупликация
-# ----------------------------------------------------------------------------
-df_raw = spark.read.table("lh_bronze.dbo.publicholidays")
+# 1. BRONZE -> SILVER: Bereinigung, Typisierung, Deduplizierung
+df_raw = spark.read.table("lh_bronze.dbo.raw_holidays")
 
 df_silver = df_raw \
-    .filter(col("date") >= "2020-01-01") \
-    .withColumn("HolidayDate", to_date(col("date"))) \
-    .withColumn("Year", year(col("HolidayDate"))) \
-    .withColumn("Month", month(col("HolidayDate"))) \
-    .withColumn("DayOfWeek", date_format(col("HolidayDate"), "EEEE")) \
-    .withColumn("IsPaid", coalesce(col("isPaidTimeOff"), lit(False))) \
-    .select(
-        col("countryRegionCode").alias("CountryCode"),
-        col("countryOrRegion").alias("CountryName"),
-        col("holidayName").alias("HolidayName"),
-        col("HolidayDate"),
-        col("Year"),
-        col("Month"),
-        col("DayOfWeek"),
-        col("IsPaid")
-    )
+    .filter(col("Date").isNotNull()) \
+    .withColumn("HolidayDate", to_date(col("Date"), "yyyy-MM-dd")) \
+    .withColumn("CountryCode", trim(col("CountryOrRegion"))) \
+    .withColumn("HolidayName", trim(col("HolidayName"))) \
+    .withColumn("IsNational", when(col("CountryCode") == lit("DE"), True).otherwise(False)) \
+    .withColumn("IngestionTimestamp", current_timestamp()) \
+    .select("HolidayDate", "CountryCode", "HolidayName", "IsNational", "IngestionTimestamp") \
+    .dropDuplicates(["HolidayDate", "CountryCode", "HolidayName"])
 
-# Сохранение в Silver (V-Order включен по умолчанию)
+# In Silver persistieren (V-Order standardmäßig aktiviert)
 df_silver.write \
     .format("delta") \
     .mode("overwrite") \
+    .option("overwriteSchema", "true") \
     .saveAsTable("lh_silver.dbo.dim_holidays")
 
-print("Успешно: lh_silver.dbo.dim_holidays создана!")
+print("Erfolgreich: lh_silver.dbo.dim_holidays geschrieben!")
 
-# ----------------------------------------------------------------------------
-# 2. DELTA LAKE MAINTENANCE: Оптимизация и Z-Order
-# ----------------------------------------------------------------------------
-spark.sql("OPTIMIZE lh_silver.dbo.dim_holidays ZORDER BY (HolidayDate);")
-print("Успешно: Z-Order кластеризация завершена!")
+# 2. DELTA LAKE WARTUNG: Optimierung & Z-Order Clustering
+spark.sql("""
+    OPTIMIZE lh_silver.dbo.dim_holidays 
+    ZORDER BY (HolidayDate, CountryCode)
+""")
+
+print("Erfolgreich: Z-Order Clustering abgeschlossen!")

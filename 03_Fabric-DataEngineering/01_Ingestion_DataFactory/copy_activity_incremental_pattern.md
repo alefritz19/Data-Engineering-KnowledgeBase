@@ -1,24 +1,43 @@
-# Паттерн инкрементальной загрузки данных (Watermark / Delta Load)
+# Inkrementelles Datenlademuster (Watermark / Delta Load)
 
-## 1. Концепция
-Вместо ежедневной тяжелой перезаписи миллионов строк используется контрольная метка (**Watermark**) — колонка `ModifiedDate` или инкрементальный `ID`.
+**Autor:** Alexander Fritzler  
+**Kontext:** Microsoft Fabric Data Factory Pipelines & Ingestion
+
+---
+
+## 1. Konzept
+
+Statt täglich ressourcenintensiv Millionen von Zeilen komplett neu zu laden (Full Load), wird eine Kontrollmarke (**Watermark**) verwendet — typischerweise eine Spalte `ModifiedDate` oder eine fortlaufende `ID`.
 
 ```
-[Источник SQL / API] ──( WHERE ModifiedDate > LastWatermark )──► [Copy Activity] ──► [OneLake Bronze]
+[Quelle: SQL Server / REST API] ──( WHERE ModifiedDate > LastWatermark )──► [Copy Activity] ──► [OneLake Bronze]
 ```
 
-## 2. Архитектура пайплайна (Data Factory Pipeline)
-1. **Activity 1 (Lookup):** Считывает значение `LastWatermark` из контрольной таблицы `dbo.WatermarkControl`.
-2. **Activity 2 (Lookup):** Считывает текущее максимальное значение `MAX(ModifiedDate)` из источника (`NewWatermark`).
-3. **Activity 3 (Copy Activity):**
+---
+
+## 2. Pipeline-Architektur (Data Factory Pipeline)
+
+1. **Aktivität 1 (Lookup):** Liest den Wert `LastWatermark` aus der Kontrolltabelle `dbo.WatermarkControl` aus.
+2. **Aktivität 2 (Lookup):** Ermittelt den aktuellen Höchstwert `MAX(ModifiedDate)` aus dem Quellsystem (`NewWatermark`).
+3. **Aktivität 3 (Copy Data):**
    * Source Query:
      ```sql
      SELECT * FROM SourceTable 
-     WHERE ModifiedDate > '@{activity('LookupOldWatermark').output.firstRow.LastWatermark}' 
+     WHERE ModifiedDate > '@{activity('LookupLastWatermark').output.firstRow.LastWatermark}' 
        AND ModifiedDate <= '@{activity('LookupNewWatermark').output.firstRow.NewWatermark}'
      ```
-   * Destination: `lh_bronze` (формат Delta, Append mode).
-4. **Activity 4 (Script / Stored Procedure):** На событии *On Success* обновляет контрольную таблицу:
+   * Destination: `lh_bronze` (Delta-Format, Append Modus).
+4. **Aktivität 4 (Script / Stored Procedure):** Bei erfolgreicher Ausführung (*On Success*) wird die Kontrolltabelle aktualisiert:
    ```sql
-   UPDATE dbo.WatermarkControl SET LastWatermark = '@{activity('LookupNewWatermark').output.firstRow.NewWatermark}';
+   UPDATE dbo.WatermarkControl 
+   SET LastWatermark = '@{activity('LookupNewWatermark').output.firstRow.NewWatermark}'
+   WHERE TableName = 'SourceTable';
    ```
+
+---
+
+## 3. Vorteile für Enterprise-Betrieb
+
+* Drastische Reduzierung der Netzwerklast und Ausführungszeit.
+* Schonung der operativen Quellsysteme (OLTP).
+* Zuverlässige Wiederaufsetzbarkeit bei Verbindungsunterbrechungen.

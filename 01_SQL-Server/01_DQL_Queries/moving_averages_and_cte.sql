@@ -1,14 +1,13 @@
--- ============================================================================
--- Назначение: Аналитические оконные функции (Скользящее среднее, Накопительный итог, Дедупликация через CTE)
--- Контекст:   T-SQL / DQL / Window Functions
--- Автор:      Alexander Fritzler
--- ============================================================================
+-- ==============================================================================
+-- Zweck:    Analytische Fensterfunktionen (Gleitender Durchschnitt, Kumulierte Summe, Dedup via CTE)
+-- Kontext:  T-SQL / DQL / Window Functions
+-- Autor:    Alexander Fritzler
+-- ==============================================================================
 
--- 1. Расчет скользящего среднего за 3 периода (2 предыдущих + текущий)
+-- 1. Berechnung des gleitenden 3-Perioden-Durchschnitts (2 vorherige + aktuelle Zeile)
 SELECT 
-    OrderID,
-    OrderDate,
     CustomerID,
+    OrderDate,
     TotalAmount,
     AVG(TotalAmount) OVER (
         PARTITION BY CustomerID 
@@ -16,17 +15,15 @@ SELECT
         ROWS BETWEEN 2 PRECEDING AND CURRENT ROW
     ) AS MovingAvg_3Orders,
     
-    -- Накопительный итог с начала истории клиента
+    -- Kumulierte Summe seit Beginn der Kundenhistorie
     SUM(TotalAmount) OVER (
         PARTITION BY CustomerID 
         ORDER BY OrderDate 
         ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
-    ) AS RunningTotal
+    ) AS CumulativeTotal
 FROM dbo.Orders;
 
-
--- 2. Дедупликация строк с помощью CTE и ROW_NUMBER()
--- Оставляем только самую последнюю транзакцию по каждому клиенту
+-- 2. Deduplizierung von Datensätzen mittels CTE und ROW_NUMBER()
 WITH RankedOrders AS (
     SELECT 
         OrderID,
@@ -39,6 +36,7 @@ WITH RankedOrders AS (
         ) AS RowNum
     FROM dbo.Orders
 )
+-- Behalte nur die jeweils jüngste Transaktion pro Kunde
 SELECT 
     OrderID,
     CustomerID,

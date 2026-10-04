@@ -1,9 +1,9 @@
 # ============================================================================
-# .gitignore — Правила безопасности и приватности (Alexander Fritzler)
-# Всё, что перечислено ниже, НИКОГДА не попадет в интернет на GitHub!
+# .gitignore — Sicherheits- und Datenschutzregeln (Alexander Fritzler)
+# Alle unten aufgeführten Pfade werden von Git ignoriert und nicht veröffentlicht!
 # ============================================================================
 
-# Личные заметки и дневники
+# Persönliche Notizen und private Dokumente
 my_notes.txt
 my_notes.md
 personal_notes/
@@ -11,9 +11,10 @@ private/
 *.secret
 *.private
 
-# Системные временные файлы Windows
+# Windows-Systemdateien und temporäre Dateien
 Thumbs.db
 Desktop.ini
 $RECYCLE.BIN/
 *.tmp
 *.lnk
+

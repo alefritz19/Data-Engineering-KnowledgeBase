@@ -1,22 +1,27 @@
-// ============================================================================
-// Назначение: Генератор аналитического календаря на языке Power Query (M)
-// Контекст:   Power Query (M) / Date Dimension
-// Автор:      Alexander Fritzler
-// ============================================================================
+// ==============================================================================
+// Zweck:    Analytischer Kalendergenerator in Power Query (M)
+// Kontext:  Power Query (M) / Date Dimension
+// Autor:    Alexander Fritzler
+// ==============================================================================
 
 let
-    StartDate = #date(2022, 1, 1),
+    // 1. Parameter definieren
+    StartDate = #date(2024, 1, 1),
     EndDate = #date(2026, 12, 31),
     DayCount = Duration.Days(Duration.From(EndDate - StartDate)) + 1,
+
+    // 2. Fortlaufende Datumsliste generieren
     DateList = List.Dates(StartDate, DayCount, #duration(1, 0, 0, 0)),
-    TableFromList = Table.FromList(DateList, Splitter.SplitByNothing(), {"Date"}, null, ExtraValues.Error),
-    SetDateType = Table.TransformColumnTypes(TableFromList, {{"Date", type date}}),
-    AddYear = Table.AddColumn(SetDateType, "Year", each Date.Year([Date]), Int64.Type),
-    AddQuarter = Table.AddColumn(AddYear, "Quarter", each "Q" & Text.From(Date.QuarterOfYear([Date])), type text),
-    AddMonthNum = Table.AddColumn(AddQuarter, "MonthNum", each Date.Month([Date]), Int64.Type),
-    AddMonthName = Table.AddColumn(AddMonthNum, "MonthName", each Date.ToText([Date], "MMMM", "ru-RU"), type text),
-    AddYearMonth = Table.AddColumn(AddMonthName, "YearMonth", each Date.ToText([Date], "yyyy-MM"), type text),
-    AddDayOfWeek = Table.AddColumn(AddYearMonth, "DayOfWeek", each Date.DayOfWeekName([Date], "ru-RU"), type text),
-    AddIsWeekend = Table.AddColumn(AddDayOfWeek, "IsWeekend", each if Date.DayOfWeek([Date], Day.Monday) >= 5 then 1 else 0, Int64.Type)
+    TableFromList = Table.FromList(DateList, Splitter.SplitByNothing(), {"Datum"}, null, ExtraValues.Error),
+    SetDateType = Table.TransformColumnTypes(TableFromList, {{"Datum", type date}}),
+
+    // 3. Kalenderattribute berechnen (Jahr, Quartal, Monat, Wochentag)
+    AddYear = Table.AddColumn(SetDateType, "Jahr", each Date.Year([Datum]), Int64.Type),
+    AddQuarter = Table.AddColumn(AddYear, "Quartal", each "Q" & Text.From(Date.QuarterOfYear([Datum])), type text),
+    AddMonthNum = Table.AddColumn(AddQuarter, "MonatNummer", each Date.Month([Datum]), Int64.Type),
+    AddMonthName = Table.AddColumn(AddMonthNum, "MonatName", each Date.MonthName([Datum], "de-DE"), type text),
+    AddYearMonthKey = Table.AddColumn(AddMonthName, "JahrMonatKey", each Date.Year([Datum]) * 100 + Date.Month([Datum]), Int64.Type),
+    AddDayOfWeek = Table.AddColumn(AddYearMonthKey, "Wochentag", each Date.DayOfWeekName([Datum], "de-DE"), type text),
+    AddIsWeekend = Table.AddColumn(AddDayOfWeek, "IstWochenende", each if Date.DayOfWeek([Datum], Day.Monday) >= 5 then true else false, type logical)
 in
     AddIsWeekend

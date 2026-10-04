@@ -1,36 +1,46 @@
-# Руководство по Git и CI/CD в Microsoft Fabric
+# Leitfaden für Git & CI/CD in Microsoft Fabric
 
-## 1. Концепция Git Integration
-Microsoft Fabric синхронизирует элементы рабочего пространства (Workspaces) напрямую с ветками в **GitHub** или **Azure DevOps**:
-* Ноутбуки сериализуются в `.py` / `.ipynb`.
-* Пайплайны сериализуются в `pipeline-content.json`.
-* Семантические модели — в `model.bim` / PBIR.
-* Озера и склады — в описания метаданных.
+**Autor:** Alexander Fritzler  
+**Kontext:** Fabric Workspace Git-Integration & Versionskontrolle
 
-## 2. Стандартная схема сред (Environments)
+---
+
+## 1. Konzept der Git-Integration in Fabric
+
+Microsoft Fabric synchronisiert Arbeitsbereichselemente (*Workspace Items*) direkt mit Branches in **GitHub** oder **Azure DevOps**:
+* Notebooks werden als `.py` / `.ipynb` serialisiert.
+* Data Pipelines werden in `pipeline-content.json` gespeichert.
+* Semantikmodelle werden als `model.bim` / PBIR-Format versioniert.
+* Lakehouses und Warehouses werden als Metadaten-Definitionen erfasst.
+
+---
+
+## 2. Standardmäßiges Umgebungsmodell (Environments)
+
 ```
-[ Feature Branch ] ──► Pull Request ──► [ Main / Dev Workspace ]
-                                                 │
-                                                 ▼ (Deployment Pipeline)
-                                        [ Test / Staging Workspace ]
-                                                 │
-                                                 ▼ (Approval & Gate)
-                                        [ Production Workspace ]
+[Feature Branch / Dev Workspace] 
+             │
+             ▼ Pull Request (Code Review)
+[Master Branch / Test & Staging Workspace]
+             │
+             ▼ Release Pipeline (Deployment Pipeline)
+[Production Workspace (F-SKU)]
 ```
 
-## 3. Базовые команды Git для локального репозитория
+---
+
+## 3. Grundlegende Git-Befehle für das lokale Repository
+
 ```bash
-# Инициализация репозитория
-git init
+# Status der geänderten Dateien überprüfen
+git status
 
-# Добавление всех файлов
+# Änderungen zur Bereitstellung vormerken
 git add .
 
-# Фиксация изменений
-git commit -m "feat: initial commit of data engineering repository"
+# Transaktions-Commit mit aussagekräftiger Nachricht erstellen
+git commit -m "feat: implement incremental watermark ingestion pipeline"
 
-# Привязка к удаленному репозиторию на GitHub
-git remote add origin https://github.com/alexfritzler/Data-Engineering-KnowledgeBase.git
-git branch -M main
-git push -u origin main
+# Branch mit GitHub synchronisieren
+git push origin master
 ```
