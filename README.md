@@ -7,7 +7,9 @@ Zentrale Wissensdatenbank, Best Practices und produktionsreife Vorlagen für Mic
 ## 🌟 End-to-End Showcase: Supermarkt Medallion & Power BI Direct Lake
 
 > **Vollständiges Referenzprojekt:** Vom lokalen Microsoft SQL Server über On-Premises Data Gateway, Medallion Architecture (Bronze $\rightarrow$ Silver $\rightarrow$ Gold), Fabric Warehouse CTAS & Stored Procedures bis hin zum **Power BI Direct Lake Semantic Model & Executive Dashboard**.  
-> 👉 **[Zum vollständigen Showcase Runbook (Schritte 1 bis 8)](03_Fabric-DataEngineering/01_Medallion_Supermarkt_DP700/README.md)**
+> 🔗 **Eigenständiges Projekt-Repository:** **[alefritz19/Supermarkt-Medallion-Lakehouse-Fabric ➔](https://github.com/alefritz19/Supermarkt-Medallion-Lakehouse-Fabric)**  
+> 👉 **[Zum lokalen Showcase Runbook (Schritte 1 bis 8)](03_Fabric-DataEngineering/01_Medallion_Supermarkt_DP700/README.md)**
+
 
 ---
 
