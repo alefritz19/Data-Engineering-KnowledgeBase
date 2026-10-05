@@ -1,0 +1,12 @@
+# ============================================================================
+# GitHub Linguist Overrides
+# Exclude HTML portal pages, guides and cheat sheets from language breakdown
+# so the repository correctly reflects Data Engineering languages (Python, SQL)
+# ============================================================================
+
+*.html linguist-detectable=false
+*.html linguist-documentation=true
+00_Guides_and_CheatSheets/* linguist-documentation=true
+00_Guides_and_CheatSheets/*.pdf linguist-documentation=true
+index.html linguist-detectable=false
+index.html linguist-documentation=true
