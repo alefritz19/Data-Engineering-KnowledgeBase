@@ -10,6 +10,11 @@ Zentrale Wissensdatenbank, Best Practices und produktionsreife Vorlagen für Mic
 > 🔗 **Eigenständiges Projekt-Repository:** **[alefritz19/Supermarkt-Medallion-Lakehouse-Fabric ➔](https://github.com/alefritz19/Supermarkt-Medallion-Lakehouse-Fabric)**  
 > 👉 **[Zum lokalen Showcase Runbook (Schritte 1 bis 8)](03_Fabric-DataEngineering/01_Medallion_Supermarkt_DP700/README.md)**
 
+## ⚡ Live Showcase 2: Hybrid Ingestion (SQL Server ➔ On-Premises Gateway ➔ Fabric Direct Lake)
+
+> **Produktionsnahe hybride Pipeline:** Automatische Datenextraktion aus lokalem `AdventureWorksDW2020` via `Local_Gateway_Alex_F` und `Dataflow Gen2` direkt in Microsoft Fabric Lakehouse Delta Tables (`DimProduct`, `DimReseller`, `DimSalesTerritory`, `FactResellerSales`), Sternschema-Modellierung und interaktives Power BI Direct Lake Reporting.  
+> 👉 **[Zum vollständigen Projektbericht & Architektur-Diagramm](03_Fabric-DataEngineering/02_Hybrid_OnPremises_Gateway_AdventureWorks/README.md)**
+
 
 ---
 
